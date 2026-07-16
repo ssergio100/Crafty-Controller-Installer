@@ -1,173 +1,214 @@
 # Crafty Controller Installer
 
-Instalador automatizado do Crafty Controller para servidores Minecraft.
+Instalador automatizado do Crafty Controller para gerenciamento de servidores Minecraft.
 
-O objetivo deste projeto é permitir uma instalação limpa, reproduzível e fácil de manutenção, evitando uma sequência manual de comandos que pode ser esquecida no futuro.
+O projeto automatiza a instalação, atualização e remoção do Crafty Controller utilizando:
 
-## Características
-
-* Instalação automatizada do Crafty Controller
-* Usuário dedicado (`crafty`)
-* Execução via systemd
-* Ambiente Python isolado (`venv`)
-* Estrutura de diretórios organizada
-* Instalação idempotente (pode ser executado novamente sem quebrar a instalação)
+- usuário dedicado (`crafty`);
+- instalação isolada em `/opt/crafty`;
+- ambiente virtual Python;
+- serviço systemd.
 
 ---
 
 # Requisitos
 
-Sistema testado:
-
-* Zorin OS 18.1
-* Ubuntu 24.04 / derivados
-
-Requisitos mínimos:
-
-* Acesso root via sudo
-* Internet disponível
-* Python 3
-* Git
+- Linux com systemd
+- Acesso root via sudo
+- Git
+- Python 3
 
 ---
 
 # Instalação
 
-Clone ou copie este projeto para o servidor.
-
-Execute:
+Clone o projeto:
 
 ```bash
-sudo ./install.sh
+git clone git@github.com:ssergio100/Crafty-Controller-Installer.git
+cd Crafty-Controller-Installer
 ```
 
-O instalador irá:
+Execute o instalador principal:
 
-1. Verificar permissões administrativas
-2. Instalar dependências necessárias
-3. Criar o usuário `crafty`
-4. Criar a estrutura de diretórios
-5. Baixar o código mais recente do Crafty
-6. Criar ambiente virtual Python
-7. Instalar dependências Python
-8. Criar serviço systemd
-9. Iniciar o Crafty
-10. Validar a instalação
+```bash
+sudo ./crafty-installer.sh
+```
+
+O instalador verifica automaticamente se já existe uma instalação.
+
+Caso não exista, será oferecida a instalação do Crafty Controller.
 
 ---
 
-# Estrutura criada
+# Menu principal
 
-## Projeto do instalador
+Após instalado, execute novamente:
 
-```
-crafty-installer/
-├── install.sh
-├── README.md
-└── systemd/
-    └── crafty.service
+```bash
+sudo ./crafty-installer.sh
 ```
 
-## Instalação do Crafty
+O instalador apresentará as opções disponíveis:
 
 ```
-/opt/crafty
-├── app
-│   └── crafty
-│       ├── venv
-│       └── código do Crafty
-├── config
-├── backups
-├── logs
-└── servers
+1) Atualizar
+2) Remover
+3) Sair
 ```
 
 ---
 
-# Serviço Systemd
+# Instalação do Crafty
 
-O Crafty é executado como um serviço do sistema:
+A instalação realiza:
 
-Nome:
+- criação do usuário de sistema `crafty`;
+- criação da estrutura em `/opt/crafty`;
+- download do código oficial do Crafty;
+- criação do ambiente virtual Python;
+- instalação das dependências;
+- configuração do serviço systemd;
+- inicialização do serviço.
+
+---
+
+# Atualização
+
+A atualização realiza:
+
+- parada do serviço Crafty;
+- atualização do código através do Git;
+- atualização das dependências Python;
+- ajuste das permissões;
+- inicialização novamente do serviço.
+
+Ao finalizar, o endereço de acesso ao painel é exibido.
+
+---
+
+# Remoção
+
+A remoção sempre solicita confirmação antes de executar alterações.
+
+Durante o processo é possível escolher entre duas opções.
+
+## Manter servidores Minecraft
+
+Mantém:
 
 ```
-crafty.service
+/opt/crafty/servers
 ```
 
-Comandos úteis:
+Preservando:
 
-Ver status:
+- mundos;
+- configurações;
+- arquivos dos servidores Minecraft.
+
+A aplicação Crafty é removida, mas os dados dos servidores permanecem.
+
+---
+
+## Remover tudo
+
+Remove:
+
+- aplicação Crafty;
+- configurações;
+- logs;
+- backups;
+- servidores Minecraft;
+- usuário do sistema `crafty`.
+
+Essa opção não pode ser desfeita.
+
+---
+
+# Serviço systemd
+
+O Crafty é executado como serviço:
 
 ```bash
 systemctl status crafty
 ```
 
-Reiniciar:
+Comandos disponíveis:
 
 ```bash
+sudo systemctl start crafty
+sudo systemctl stop crafty
 sudo systemctl restart crafty
-```
-
-Ver logs:
-
-```bash
-journalctl -u crafty -f
 ```
 
 ---
 
 # Acesso ao painel
 
-Após a instalação, o painel estará disponível em:
+Após instalação ou atualização, o painel estará disponível em:
 
 ```
 https://IP_DO_SERVIDOR:8443
 ```
 
-O Crafty utiliza HTTPS por padrão.
-
 ---
 
-# Atualizações
-
-O projeto será evoluído para incluir um script próprio de atualização:
+# Estrutura de diretórios
 
 ```
-update.sh
-```
-
-Esse script será responsável por:
-
-* atualizar o código do Crafty;
-* atualizar dependências;
-* reiniciar o serviço.
-
-
-
-Os mundos dos servidores ficam em:
-
-```
-/opt/crafty/servers
+/opt/crafty
+├── app
+│   └── crafty
+├── servers
+├── backups
+├── logs
+└── config
 ```
 
 ---
 
-# Filosofia do projeto
+# Scripts
 
-Este instalador foi criado com os seguintes objetivos:
+```
+crafty-installer.sh  → menu principal
 
-* Não depender de memória de comandos manuais.
-* Manter o sistema organizado.
-* Separar aplicação, dados e serviço.
-* Facilitar reinstalação e manutenção futura.
-* Permitir versionamento do ambiente.
+install.sh           → instalação do Crafty
+
+update.sh            → atualização do Crafty
+
+uninstall.sh         → remoção do Crafty
+```
 
 ---
 
-# Versão
+# Histórico de versões
 
-Atual:
+## v0.3.0
 
-```
-0.1
-```
+Adicionado:
+
+- atualização automática do Crafty;
+- atualização de dependências Python;
+- restauração automática do serviço.
+
+---
+
+## v0.2.0
+
+Adicionado:
+
+- script de remoção;
+- confirmação antes da remoção;
+- opção de preservar servidores Minecraft.
+
+---
+
+## v0.1.0
+
+Primeira versão funcional:
+
+- instalação completa;
+- criação do usuário `crafty`;
+- configuração do serviço systemd;
+- inicialização automática.
