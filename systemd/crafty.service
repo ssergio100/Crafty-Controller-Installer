@@ -1,0 +1,19 @@
+[Unit]
+Description=Crafty Controller Minecraft Server Manager
+After=network.target
+
+[Service]
+Type=simple
+
+User=crafty
+Group=crafty
+
+WorkingDirectory=/opt/crafty/app/crafty
+
+ExecStart=/opt/crafty/app/crafty/venv/bin/python3 main.py
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
