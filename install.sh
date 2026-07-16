@@ -214,9 +214,11 @@ verify_installation() {
 }
 
 
+
 show_summary() {
 
     local IP=$(hostname -I | awk '{print $1}')
+    local CREDS_FILE="$APP_DIR/app/crafty/app/config/default-creds.txt"
 
     echo
     echo "=========================================="
@@ -226,6 +228,29 @@ show_summary() {
     echo "Acesse:"
     echo
     echo "https://$IP:8443"
+
+     if [ -f "$CREDS_FILE" ]; then
+
+        USERNAME=$(python3 -c "import json; print(json.load(open('$CREDS_FILE'))['username'])")
+        PASSWORD=$(python3 -c "import json; print(json.load(open('$CREDS_FILE'))['password'])")
+
+        echo "Credenciais iniciais:"
+        echo
+        echo "Usuário: $USERNAME"
+        echo "Senha:   $PASSWORD"
+        echo
+
+        echo "IMPORTANTE:"
+        echo "Altere a senha após o primeiro acesso."
+        echo "Esta senha é fornecida apenas para configuração inicial."
+        echo
+
+    else
+
+        echo "[AVISO] Credenciais iniciais não encontradas."
+
+    fi
+
     echo
     echo "Servico:"
     echo "crafty.service"
@@ -234,6 +259,25 @@ show_summary() {
     echo "$APP_DIR"
     echo
     echo "=========================================="
+}
+
+wait_for_credentials() {
+
+    local CREDS_FILE="$APP_DIR/app/crafty/app/config/default-creds.txt"
+
+    echo "[INFO] Aguardando criação das credenciais iniciais..."
+
+    for i in {1..30}; do
+
+        if [ -f "$CREDS_FILE" ]; then
+            return 0
+        fi
+
+        sleep 1
+
+    done
+
+    return 1
 }
 
 main() {
@@ -257,6 +301,7 @@ main() {
     install_systemd_service
     start_service
     verify_installation
+    wait_for_credentials
     show_summary
 }
 

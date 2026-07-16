@@ -56,6 +56,9 @@ update_code() {
 
     sudo -u "$APP_USER" git -C "$CRAFTY_DIR" pull
 
+    VERSION=$(sudo -u "$APP_USER" git -C "$CRAFTY_DIR" describe --tags --always)
+
+    info "Versao atual: $VERSION"
     info "Codigo atualizado"
 
 }
@@ -90,6 +93,21 @@ start_service() {
 
 }
 
+show_access_url() {
+
+    IP=$(hostname -I | awk '{print $1}')
+
+    echo
+    echo "=========================================="
+    echo "Atualizacao concluida com sucesso"
+    echo
+    echo "Acesse o Crafty em:"
+    echo
+    echo "https://${IP}:8443"
+    echo "=========================================="
+
+}
+
 main() {
 
     echo "=========================================="
@@ -104,6 +122,7 @@ main() {
     update_dependencies
     fix_permissions
     start_service
+   show_access_url
 
 }
 
