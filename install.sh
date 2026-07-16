@@ -60,21 +60,35 @@ check_dependencies() {
 
 create_user() {
 
-    info "Verificando usuario $APP_USER"
+    if id "$APP_USER" &>/dev/null; then
 
-    if id "$APP_USER" >/dev/null 2>&1; then
         info "Usuario $APP_USER ja existe"
+
     else
-        info "Criando usuario $APP_USER"
 
-        useradd \
-            --system \
-            --create-home \
-            --home-dir "$APP_DIR" \
-            --shell /bin/bash \
-            "$APP_USER"
+        if getent group "$APP_USER" >/dev/null; then
 
-        info "Usuario $APP_USER criado"
+            info "Grupo $APP_USER ja existe"
+            info "Criando usuario usando grupo existente"
+
+            useradd \
+                -g "$APP_USER" \
+                -d "$APP_DIR" \
+                -s /bin/bash \
+                "$APP_USER"
+
+        else
+
+            info "Criando usuario e grupo $APP_USER"
+
+            useradd \
+                -m \
+                -d "$APP_DIR" \
+                -s /bin/bash \
+                "$APP_USER"
+
+        fi
+
     fi
 }
 
