@@ -280,6 +280,43 @@ wait_for_credentials() {
     return 1
 }
 
+add_admin_user_to_crafty_group() {
+
+    if [ -z "$SUDO_USER" ]; then
+        info "Usuario administrador nao detectado"
+        return
+    fi
+
+    echo
+    echo "Deseja adicionar o usuario atual ao grupo crafty?"
+    echo
+    echo "Usuario detectado: $SUDO_USER"
+    echo "Isso permite administrar os servidores sem usar sudo."
+    echo
+
+    read -rp "Adicionar usuario ao grupo crafty? [s/N]: " ADD_USER
+
+    case "$ADD_USER" in
+        s|S)
+
+            info "Adicionando usuario $SUDO_USER ao grupo crafty"
+
+            usermod -aG crafty "$SUDO_USER"
+
+            info "Usuario adicionado ao grupo crafty"
+            echo
+            echo "IMPORTANTE:"
+            echo "Saia e entre novamente na sessao para aplicar a nova permissao."
+            echo
+
+            ;;
+
+        *)
+            info "Usuario nao adicionado ao grupo crafty"
+            ;;
+    esac
+}
+
 main() {
 
     echo "=========================================="
@@ -300,6 +337,7 @@ main() {
     install_python_dependencies
     install_systemd_service
     start_service
+    add_admin_user_to_crafty_group
     verify_installation
     wait_for_credentials
     show_summary
